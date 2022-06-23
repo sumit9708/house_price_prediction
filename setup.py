@@ -5,9 +5,9 @@ from typing import List
 
 PROJECT_NAME = "house_price_prediction"
 AUTHOR = "Sumit Bhagat"
-VERSION = "0.0.2"
+VERSION = "0.0.3"
 DESCRIPTION = "This is machine learning project for house price prediction in bangalore location"
-#PACKAGES = find_packages() #["housing"],
+#PACKAGES = ["housing"]
 REQUIRED_FILES = "requirements.txt"
 
 def get_required_files()->List[str]:
@@ -16,7 +16,7 @@ def get_required_files()->List[str]:
     Descriptiob :- This function going to return list of all the libarary inside the requirements.txt file.
     """
     with open(REQUIRED_FILES) as requirements_file:
-        return requirements_file.readlines()
+        return requirements_file.readlines().remove("-e .")
 
 setup(
 
@@ -28,6 +28,3 @@ packages=find_packages(),
 install_requires= get_required_files()
 
 )
-
-if __name__=="__main__":
-    print(get_required_files())

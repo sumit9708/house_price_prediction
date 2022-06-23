@@ -1,3 +1,6 @@
 numpy
-Flask
+flask
 gunicorn
+sklearn
+pandas
+-e .
