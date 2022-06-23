@@ -1,34 +1,33 @@
 from setuptools import setup
 from typing import List
 
-###Declearing Variables for the setup.py function.
+### here we are giving all the details of the project to setup.
 
-PROJECT_NAME = "House Price Prediction"
+PROJECT_NAME = "house_price_prediction"
 AUTHOR = "Sumit Bhagat"
-VERSION = "0.0.1"
-DESCRIPTION = "This is the machine lerning project for house price prediction"
-PACKAGES = ['housing']
-INSTALL_REQUIRES = "requirements.txt"
+VERSION = "0.0.2"
+DESCRIPTION = "This is machine learning project for house price prediction in bangalore location"
+PACKAGES = ["housing"]
+REQUIRED_FILES = "requirements.txt"
 
-def require_file_list()->List[str]:
+def get_required_files()->List[str]:
 
     """
-    Description - This function is going to return list of all the required module from 
-    requirements.txt file and will provide to setup file.
+    Descriptiob :- This function going to return list of all the libarary inside the requirements.txt file.
     """
-
-    with open(INSTALL_REQUIRES) as requirement_file:
-        return requirement_file.readlines()
+    with open(REQUIRED_FILES) as requirements_file:
+        return requirements_file.readlines()
 
 setup(
 
 name = PROJECT_NAME,
-author = AUTHOR,
-version = VERSION,
-packages =PACKAGES,
+author=AUTHOR,
+version=VERSION,
 description=DESCRIPTION,
-install_requires = require_file_list()
+packages=PACKAGES,
+install_requires= get_required_files()
+
 )
 
 if __name__=="__main__":
-    print(require_file_list())
+    print(get_required_files())
