@@ -9,6 +9,7 @@ VERSION = "0.0.3"
 DESCRIPTION = "This is machine learning project for house price prediction in bangalore location"
 #PACKAGES = ["housing"]
 REQUIRED_FILES = "requirements.txt"
+DATA = "-e ."
 
 def get_required_files()->List[str]:
 
@@ -16,7 +17,11 @@ def get_required_files()->List[str]:
     Descriptiob :- This function going to return list of all the libarary inside the requirements.txt file.
     """
     with open(REQUIRED_FILES) as requirements_file:
-        return requirements_file.readlines().remove("-e .")
+        
+        requirement_list = [requirement.replace("\n","")  for requirement in requirements_file.readlines()]
+        if DATA in requirement_list:
+            requirement_list.remove(DATA)
+        return requirement_list
 
 setup(
 
