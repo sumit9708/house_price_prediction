@@ -11,7 +11,7 @@ from housing.util.util import read_yaml_file
 class Configuration:
     def __init__(self,config_file_path:str =CONFIG_FILE_PATH,
                      current_time_stamp:str = CURRENT_TIME_STAMP
-      ):
+      )->None:
         try:
             logging.info("Data entry start for reading yaml file")
             self.config_info = read_yaml_file(file_path=config_file_path)
@@ -56,6 +56,7 @@ class Configuration:
             data_ingestion_config[DATA_INGESTION_INGESTED_DIR_KEY],
             data_ingestion_config[DATA_INGESTION_INGESTED_TEST_DIR_KEY]
             )
+            logging.info("data ingestion configuration started")
 
             data_ingestion_config = DataIngestionConfig(
                 dataset_download_url,
@@ -89,6 +90,7 @@ class Configuration:
 
     def get_training_pipeline_config(self)->TrainingPipelineConfig:
         try:
+            logging.info("Training pipeline configuration started")
             training_pipeline_config = self.config_info[TRAINING_PIPELINE_CONFIG_KEY]
             artifact_dir = os.path.join(ROOT_DIR,
                                         training_pipeline_config[PIPELINE_NAME],
@@ -96,6 +98,7 @@ class Configuration:
                                         )
 
             training_pipeline_config = TrainingPipelineConfig(artifact_dir=artifact_dir)
+            logging.info(f"training pipeline configguration is:{training_pipeline_config}")
             return training_pipeline_config
 
         except Exception as e:
