@@ -6,8 +6,7 @@ DataIngestionConfig = namedtuple("DataIngestionConfig",["dataset_download_url","
                                 "tgz_download_dir","ingested_dir","ingested_train_dir","ingested_test_dir"])
 
 ## Data Validation  Configuration:-
-DataValidationConfig = namedtuple("DataValidationConfig",["schema_dir","schema_file_name","report_file_name",
-                                     "report_page_file_name"])
+DataValidationConfig = namedtuple("DataValidationConfig",["schema_file_path","report_file_path","report_page_file_path"])
 
 ## Data Transformation  Configuration :-
 DataTransformationConfig = namedtuple("DataTransformationConfig",["add_bedroom_per_room","transformed_dir",

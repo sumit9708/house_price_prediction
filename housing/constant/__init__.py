@@ -22,3 +22,13 @@ DATA_INGESTION_TGZ_DOWNLOAD_DIR_KEY = "tgz_download_dir"
 DATA_INGESTION_INGESTED_DIR_KEY = "ingested_dir"
 DATA_INGESTION_INGESTED_TRAIN_DIR_KEY = "ingested_train_dir"
 DATA_INGESTION_INGESTED_TEST_DIR_KEY = "ingested_test_dir"
+
+## Data Validation Constants:-
+
+DATA_VALIDATION_CONFIG_KEY = "data_validation_config"
+DATA_VALIDATION_ARTIFACT_DIR_NAME = "data-validation"
+DATA_VALIDATION_SCHEMA_DIR_KEY = "schema_dir"
+DATA_VALIDATION_SCHEMA_FILE_NAME = "schema_file_name"
+DATA_VALIDATION_REPORT_FILE_NAME = "report_file_name"
+DATA_VALIDATION_REPORT_PAGE_FILE_NAME = "report_page_file_name"
+

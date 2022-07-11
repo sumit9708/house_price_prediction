@@ -6,3 +6,7 @@ pandas
 -e .
 PyYAML
 six
+dill
+pandas_profiling
+ipywidgets
+evidently
