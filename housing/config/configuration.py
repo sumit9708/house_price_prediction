@@ -1,5 +1,4 @@
 import os,sys
-from tkinter import E
 from housing.constant import *
 from housing.logger import logging
 from housing.exception import ExceptionHendler
@@ -74,56 +73,97 @@ class Configuration:
         except Exception as e:
             raise ExceptionHendler(e,sys) from e
 
-    def get_data_validation_config(self,data_ingestion_artifact:DataIngestionArtifact)->DataValidationConfig:
+    def get_data_validation_config(self)->DataValidationConfig:
         try:
-            logging.info("-----------Data Validation log Started--------------")
-            self.data_Ingestion_artifact = data_ingestion_artifact
-            training_pipeline_config = self.get_training_pipeline_config()
+            artifact_dir = self.training_pipeline_config.artifact_dir
+            data_validation_artifact_dir = os.path.join(
+                artifact_dir,
+                DATA_VALIDATION_ARTIFACT_DIR_NAME,
+                self.time_stamp
+            )
+
             data_validation_config = self.config_info[DATA_VALIDATION_CONFIG_KEY]
 
-            logging.info(f"data validation config is : {data_validation_config}")
+            schema_file_path = os.path.join(ROOT_DIR,
+            data_validation_config[DATA_VALIDATION_SCHEMA_DIR_KEY],
+            data_validation_config[DATA_VALIDATION_SCHEMA_FILE_NAME]
+            )
 
-            artifact_dir = self.training_pipeline_config.artifact_dir
+            report_file_path = os.path.join(data_validation_artifact_dir,
+            data_validation_config[DATA_VALIDATION_REPORT_FILE_NAME]
+            )
 
-            data_validation_artifact_dir = os.path.join(artifact_dir,
-                                              DATA_VALIDATION_ARTIFACT_DIR_NAME,
-                                              self.time_stamp)
-
-            logging.info(f"Data validation Arifact Directory is : {data_validation_artifact_dir}")
-
-            schema_file_name = data_validation_config[DATA_VALIDATION_SCHEMA_FILE_NAME]
-
-            schema_file_path = os.path.join(data_validation_artifact_dir,schema_file_name)
-
-
-            
-            logging.info(f"Data validation Schema file is : {schema_file_name}")
-            report_file_name = data_validation_config[DATA_VALIDATION_REPORT_FILE_NAME]
-            logging.info(f"report file name is : {report_file_name}")
-
-            report_file_path = os.path.join(data_validation_artifact_dir,report_file_name)
-
-            report_page_file_name = data_validation_config[DATA_VALIDATION_REPORT_PAGE_FILE_NAME]
-
-            logging.info(f"report page file name is : {report_page_file_name}")
-
-            report_page_file_path = os.path.join(data_validation_artifact_dir,report_page_file_name)
+            report_page_file_path = os.path.join(data_validation_artifact_dir,
+            data_validation_config[DATA_VALIDATION_REPORT_PAGE_FILE_NAME]
+            )
 
             data_validation_config = DataValidationConfig(
-                schema_file_path, 
-                report_file_path, 
-                report_page_file_path)
-
-            logging.info("------------------Data Validation Configuration Completed-----------------")
-
+                schema_file_path = schema_file_path,
+                report_file_path=report_file_path,
+                report_page_file_path= report_page_file_path
+            )
             return data_validation_config
-            logging.info(f" Data validation Config is : {data_validation_config}")
-
         except Exception as e:
             raise ExceptionHendler(e,sys) from e
 
     def get_data_transformation_config(self)->DataTransformationConfig:
-        pass
+        try:
+
+            logging.info("-----------------Data Transformation Config Log Started--------------------")
+
+            data_validation_config = self.get_data_validation_config()
+            
+            data_transformation_config = self.config_info[DATA_TRANSFORMATION_CONFIG_KEY]
+            time_stamp = self.time_stamp
+
+            artifact_dir = self.training_pipeline_config.artifact_dir
+
+            data_trasformation_artifact_dir = os.path.join(artifact_dir,
+                DATA_TRANSFORMATION_ARTIFACT_DIR_NAME,time_stamp
+                )    ### here we have not linked artifact dir name to data transformation config /
+                     ## because it not present in yaml file. it self assigned directory
+
+            #os.makedirs(data_trasformation_artifact_dir,exist_ok=True)
+
+            add_bedroom_per_room = data_transformation_config[ADD_BEDROOM_PER_ROOM_KEY]
+
+            #transformed_dir = os.path.join(data_trasformation_artifact_dir,
+            #data_transformation_config[DATA_TRANSFORMATION_TRANSFORMED_DIR_NAME_KEY]
+            #)
+
+            transformed_train_dir = os.path.join(data_trasformation_artifact_dir,
+            data_transformation_config[DATA_TRANSFORMATION_TRANSFORMED_DIR_NAME_KEY],
+            data_transformation_config[DATA_TRASFORMATION_TRAIN_DIR_NAME_KEY]
+            )
+
+            transformed_test_dir = os.path.join(data_trasformation_artifact_dir,
+            data_transformation_config[DATA_TRANSFORMATION_TRANSFORMED_DIR_NAME_KEY],
+            data_transformation_config[DATA_TRASFORMATION_TEST_DIR_NAME_KEY]
+            )
+
+            #preprocessing_dir=os.path.join(data_trasformation_artifact_dir,
+            #data_transformation_config[DATA_TRANSFORMATION_PREPROCESSING_DIR_KEY]
+            #)
+
+            preprocessed_object_file_name = os.path.join(data_trasformation_artifact_dir,
+            data_transformation_config[DATA_TRANSFORMATION_PREPROCESSING_DIR_KEY],
+            data_transformation_config[DATA_TRANSFORMATION_PREPROCESSING_OBJECT_FILE_NAME_KEY]
+            )
+
+
+            data_transformation_config = DataTransformationConfig(
+                add_bedroom_per_room,  
+                transformed_train_dir, 
+                transformed_test_dir, 
+                preprocessed_object_file_name
+            )
+
+            logging.info(f"Data Transformation Configuration Completed :{data_transformation_config} ")
+
+            return data_transformation_config
+        
+        except Exception as e:
+            raise ExceptionHendler(e,sys) from e
 
     def get_model_trainer_config(self)->ModelTrainerConfig:
         pass

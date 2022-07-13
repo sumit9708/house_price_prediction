@@ -9,8 +9,10 @@ from numpy import dtype
 
 def main():
     try:
-        pipeline = Pipeline()
-        pipeline.run_pipeline()
+        #pipeline = Pipeline()
+        #pipeline.run_pipeline()
+        data_transformation = Configuration().get_data_ingestion_config()
+        print(data_transformation)
         logging.info("demo class has been created and logging and exception test started")
     except Exception as e:
         housing_exception = ExceptionHendler(e,sys)

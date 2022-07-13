@@ -152,15 +152,19 @@ class DataValidation:
     def is_data_drift_found(self):
         try:
             
-            get_and_saved_data_drift_report = self.get_and_save_data_drift_report()
+            report = self.get_and_save_data_drift_report()
             self.save_data_drift_report_page()
 
             return True
         except Exception as e:
             raise ExceptionHendler(e,sys) from e
 
-    def initiate_data_validation(self):
+    def initiate_data_validation(self)->DataValidationArtifact:
         try:
+            self.is_train_and_test_file_exist()
+            self.validate_dataset_schema()
+            self.is_data_drift_found()
+
             data_validation_artifact = DataValidationArtifact(
                 schema_file_path=self.data_validation_config.schema_file_path, 
                 report_file_path = self.data_validation_config.report_file_path, 
@@ -172,3 +176,6 @@ class DataValidation:
             return data_validation_artifact
         except Exception as e:
             raise ExceptionHendler(e,sys) from e
+
+    def __del__(self):
+        logging.info(f"{'>>'*30}Data Valdaition log completed.{'<<'*30} \n\n")

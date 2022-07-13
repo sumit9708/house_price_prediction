@@ -9,8 +9,8 @@ DataIngestionConfig = namedtuple("DataIngestionConfig",["dataset_download_url","
 DataValidationConfig = namedtuple("DataValidationConfig",["schema_file_path","report_file_path","report_page_file_path"])
 
 ## Data Transformation  Configuration :-
-DataTransformationConfig = namedtuple("DataTransformationConfig",["add_bedroom_per_room","transformed_dir",
-         "transformed_train_dir","transformed_test_dir","preprocessing_dir","preprocessed_object_file_name"])
+DataTransformationConfig = namedtuple("DataTransformationConfig",["add_bedroom_per_room",
+         "transformed_train_dir","transformed_test_dir","preprocessed_object_file_name"])
 
 ## Model Trainer Configuration:-
 
