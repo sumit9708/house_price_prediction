@@ -111,7 +111,7 @@ class Configuration:
 
             logging.info("-----------------Data Transformation Config Log Started--------------------")
 
-            data_validation_config = self.get_data_validation_config()
+            #data_validation_config = self.get_data_validation_config()
             
             data_transformation_config = self.config_info[DATA_TRANSFORMATION_CONFIG_KEY]
             time_stamp = self.time_stamp

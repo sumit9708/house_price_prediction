@@ -1,5 +1,11 @@
+from cgi import test
+from distutils.command.config import config
+from email import message
 import os,sys
+import sched
 from tkinter import E
+
+from sklearn import preprocessing
 from housing.entity.config_entity import DataTransformationConfig
 from housing.logger import logging
 from housing.exception import ExceptionHendler
@@ -14,7 +20,7 @@ from sklearn.compose import ColumnTransformer
 from housing.constant import *
 import pandas as pd
 import numpy as np
-from housing.util.util import read_yaml_file
+from housing.util.util import load_data, read_yaml_file, save_numpy_array_data, save_preprocessing_object
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 
@@ -90,40 +96,139 @@ class DataTransformation:
 
     def get_data_transformer_object(self)->ColumnTransformer:
         try:
+            logging.info("----------------get data transformation object log started--------------")
+            schema_file_path = self.data_validation_artifact.schema_file_path
+
+            schema = read_yaml_file(file_path=schema_file_path)
+
+            numerical_columns = schema[NUMERICAL_COLUMN_KEY]
+
+            logging.info("---------------numerical columns are : [{numerical_columns}]")
+
+            categorical_columns = schema[CATEGORICAL_COLUMN_KEY]
+
+            logging.info("categorical column is : [{categorical_columns}]")
+
+            target_column = schema[TARGET_COLUMN_KEY]
+
+            logging.info("target column is : [{target_column}]")
+
+            numerical_pipeline = Pipeline(steps=([
+                ("simple_imputer",SimpleImputer(strategy="median")),
+                ("feature_generator",FeatureGenerator(add_bedrooms_per_room=self.data_transformation_config.add_bedroom_per_room,
+                    columns=numerical_columns)),
+                ("scaler",StandardScaler(with_mean=False))
+            ]))
+
+            logging.info("Numerical pipling created successfuly")
+
+            categorical_pipeline = Pipeline(steps=[
+                ("simple_imputer",SimpleImputer(strategy="most_frequent")),
+                ("onehotencoder",OneHotEncoder()),
+                ("scaler",StandardScaler(with_mean=False))
+            ])
+
+            logging.info("categorical pipeline created successfuly")
+
+            preprocessing_obj = ColumnTransformer([
+                ("numerical_pipeline",numerical_pipeline,numerical_columns),
+                ("categorical_pipeline",categorical_pipeline,categorical_columns)
+            ])
+
+            logging.info(f"preprocessing log completed and object is [{preprocessing_obj}]")
+
+            return preprocessing_obj
+
+        except Exception as e:
+            raise ExceptionHendler(e,sys) from e
+
+    def initiate_data_transformation(self)->DataTransformationArtifact:
+
+        try:
+
+            logging.info("Data transformation initation log started")
+            preprocessing_object = self.get_data_transformer_object()
+
+            logging.info(f"preprocessing object created]")
+
+            train_file_path = self.data_ingestion_artifact.train_file_path
+
+            test_file_path = self.data_ingestion_artifact.test_file_path
+
             schema_file_path = self.data_validation_artifact.schema_file_path
 
             dataset_schema = read_yaml_file(file_path=schema_file_path)
 
-            numerical_columns = dataset_schema[NUMERICAL_COLUMN_KEY]
-            categorical_columns = dataset_schema[CATEGORICAL_COLUMN_KEY]
+            target_column = dataset_schema[TARGET_COLUMN_KEY]
 
+            
 
-            num_pipeline = Pipeline(steps=[
-                ('imputer', SimpleImputer(strategy="median")),
-                ('feature_generator', FeatureGenerator(
-                    add_bedrooms_per_room=self.data_transformation_config.add_bedroom_per_room,
-                    columns=numerical_columns
-                )),
-                ('scaler', StandardScaler())
-            ]
+            train_df = load_data(file_path=train_file_path,schema_file_path=schema_file_path)
+
+            test_df = load_data(file_path=test_file_path,schema_file_path=schema_file_path)
+
+            input_feature_train_df = train_df.drop(columns = target_column,axis = 1)
+            target_feature_train_df = train_df[target_column]
+
+            input_feature_test_df = test_df.drop(columns=target_column,axis=1)
+            target_feature_test_df = test_df[target_column]
+
+            transformed_train_arr = preprocessing_object.fit_transform(input_feature_train_df)
+
+            logging.info("train data has been transformed successfuly")
+
+            transformed_test_arr = preprocessing_object.transform(input_feature_test_df)
+
+            logging.info("test data has been transformed succefully")
+
+            train_arr = np.c_[transformed_train_arr,np.array(target_feature_train_df)]
+
+            test_arr = np.c_[transformed_test_arr,np.array(target_feature_test_df)]
+
+            transformed_train_dir = self.data_transformation_config.transformed_train_dir
+            transformed_test_dir = self.data_transformation_config.transformed_test_dir
+
+            train_file_name = os.path.basename(train_file_path).replace(".csv",".npz")
+            test_file_name = os.path.basename(test_file_path).replace(".csv",".npz")
+
+            transformed_train_file_path = os.path.join(transformed_train_dir,train_file_name)
+
+            logging.info(f"transformed_train_file_path is [{transformed_train_file_path}]")
+
+            transformed_test_file_path = os.path.join(transformed_test_dir,test_file_name)
+
+            logging.info(f"transformed_test_file_path is [{transformed_test_file_path}]")
+
+            save_numpy_array_data(file_path = transformed_train_file_path,array = train_arr)
+
+            logging.info("transformed train array formed data saved inside local directory")
+
+            save_numpy_array_data(file_path = transformed_test_file_path,array = test_arr)
+
+            logging.info("transformed test data has been saved inside local directory successfuly")
+
+            preprocessed_object_file_path = self.data_transformation_config.preprocessed_object_file_name
+
+            save_preprocessing_object(file_path = preprocessed_object_file_path,obj=preprocessing_object)
+
+            logging.info(f"preprocessed object file path is : [{preprocessed_object_file_path}]")
+
+            message="Data transformation done successfult"
+            is_transformed = True
+
+            data_transformation_artifact = DataTransformationArtifact(
+                is_transformed, 
+                transformed_train_file_path, 
+                transformed_test_file_path, 
+                message, 
+                preprocessed_object_file_path
             )
+                                                                     
+            logging.info(f"Data Transformation Artifact is : [{data_transformation_artifact}]")
 
-            cat_pipeline = Pipeline(steps=[
-                 ('impute', SimpleImputer(strategy="most_frequent")),
-                 ('one_hot_encoder', OneHotEncoder()),
-                 ('scaler', StandardScaler(with_mean=False))
-            ]
-            )
+            return data_transformation_artifact
 
-            logging.info(f"Categorical columns: {categorical_columns}")
-            logging.info(f"Numerical columns: {numerical_columns}")
-
-
-            preprocessing = ColumnTransformer([
-                ('num_pipeline', num_pipeline, numerical_columns),
-                ('cat_pipeline', cat_pipeline, categorical_columns),
-            ])
-            return preprocessing
+            logging.info("----------------Data Transformation Completed Successfully----------------")
 
         except Exception as e:
             raise ExceptionHendler(e,sys) from e

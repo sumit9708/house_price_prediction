@@ -43,10 +43,13 @@ DATA_TRASFORMATION_TEST_DIR_NAME_KEY = "transformed_test_dir"
 DATA_TRANSFORMATION_PREPROCESSING_DIR_KEY = "preprocessing_dir"
 DATA_TRANSFORMATION_PREPROCESSING_OBJECT_FILE_NAME_KEY = "preprocessed_object_file_name"
 
+## Schema file constants
+
 COLUMN_TOTAL_ROOMS = "total_rooms"
 COLUMN_POPULATION = "population"
 COLUMN_HOUSEHOLDS = "households"
 COLUMN_TOTAL_BEDROOM = "total_bedrooms"
-NUMERICAL_COLUMN_KEY = "Numerical_columns"
-CATEGORICAL_COLUMN_KEY = "Categorical_column"
-TARGET_COLUMN_KEY = "target_column_name"
+NUMERICAL_COLUMN_KEY = "numerical_columns"
+CATEGORICAL_COLUMN_KEY = "categorical_columns"
+TARGET_COLUMN_KEY = "target_column"
+DATASET_SCHEMA_COLUMNS_KEY = "columns"

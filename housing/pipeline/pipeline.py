@@ -1,3 +1,4 @@
+from housing.component.data_transformation import DataTransformation
 from housing.component.data_validation import DataValidation
 from housing.config.configuration import Configuration
 from housing.constant import *
@@ -6,9 +7,10 @@ import os,sys
 from housing.logger import logging
 from housing.component.data_ingestion import DataIngestion
 
-from housing.entity.artifact_entity import DataIngestionArtifact, DataValidationArtifact
-from housing.entity.config_entity import DataIngestionConfig,DataValidationConfig
+from housing.entity.artifact_entity import DataIngestionArtifact, DataTransformationArtifact, DataValidationArtifact
+from housing.entity.config_entity import DataIngestionConfig, DataTransformationConfig,DataValidationConfig
 from housing.component.data_validation import DataValidation
+from housing.component.data_transformation import DataTransformation
 #from housing.component.data_transformation import DataTransformation
 
 class Pipeline:
@@ -39,18 +41,38 @@ class Pipeline:
         except Exception as e:
             raise ExceptionHendler(e,sys) from e
 
+    def start_data_transformation(self,data_ingestion_artifact:DataIngestionArtifact,
+                                  data_validation_artifact:DataValidationArtifact,
+                                  data_transformation_config:DataTransformationConfig
+        )->DataTransformationArtifact:
+        try:
+
+            config = Configuration()
+
+            data_transformation = DataTransformation(config,data_ingestion_artifact=data_ingestion_artifact,
+                                data_transformation_config=data_transformation_config,
+                                data_validation_artifact=data_validation_artifact
+            )
+
+            return data_transformation.initiate_data_transformation()
+        except Exception as e:
+            raise ExceptionHendler(e,sys) from e
+
     def run_pipeline(self):
         try:
             # Data Ingestion
             logging.info("-----------------run pipeline function log started--------------------")
+            config = Configuration()
+            data_transformation_config = config.get_data_transformation_config()
             data_ingestion_artifact = self.start_data_ingestion()
             data_validation_artifact = self.start_data_validation(data_ingestion_artifact=data_ingestion_artifact)
-            #data_transformation_artifact = self.start_data_transformation(
-                #data_ingestion_artifact=data_ingestion_artifact,
-                #data_validation_artifact=data_validation_artifact
-            #)
-            logging.info(f"data ingestion artifact : {data_ingestion_artifact} and data validation artifact is :{data_validation_artifact}")
-            return data_ingestion_artifact,data_validation_artifact
+            data_transformation_artifact = self.start_data_transformation(
+                data_transformation_config= data_transformation_config,
+                data_ingestion_artifact=data_ingestion_artifact,
+                data_validation_artifact=data_validation_artifact
+            )
+            logging.info(f"data ingestion artifact : {data_ingestion_artifact} and data validation artifact is :{data_validation_artifact} and data transformation artifact is ;[{data_transformation_artifact}]")
+            return data_ingestion_artifact,data_validation_artifact,data_transformation_artifact
 
         except Exception as e:
             raise ExceptionHendler(e,sys) from e
