@@ -7,11 +7,11 @@ import os,sys
 from housing.logger import logging
 from housing.component.data_ingestion import DataIngestion
 
-from housing.entity.artifact_entity import DataIngestionArtifact, DataTransformationArtifact, DataValidationArtifact
-from housing.entity.config_entity import DataIngestionConfig, DataTransformationConfig,DataValidationConfig
+from housing.entity.artifact_entity import DataIngestionArtifact, DataTransformationArtifact, DataValidationArtifact, ModelTrainerArtifact
+from housing.entity.config_entity import DataIngestionConfig, DataTransformationConfig,DataValidationConfig, ModelTrainerConfig
 from housing.component.data_validation import DataValidation
 from housing.component.data_transformation import DataTransformation
-#from housing.component.data_transformation import DataTransformation
+from housing.component.model_trainer import ModelTraining
 
 class Pipeline:
     def __init__(self,config: Configuration = Configuration())->None:
@@ -58,6 +58,20 @@ class Pipeline:
         except Exception as e:
             raise ExceptionHendler(e,sys) from e
 
+    def start_model_training(self,data_transformation_artifact:DataTransformationArtifact)->ModelTrainerArtifact:
+        try:
+            logging.info("-----------model training log inside pipeline started------------------")
+            model_trainer_config = self.config.get_model_trainer_config()
+            self.data_transformation_artifact = data_transformation_artifact
+
+            model_training = ModelTraining(data_transformation_artifact=data_transformation_artifact,model_training_config=model_trainer_config)
+
+            logging.info("---------------model training log inside pipeline is completed---------------")
+
+            return model_training.initiate_model_training()
+        except Exception as e:
+            raise ExceptionHendler(e,sys) from e
+
     def run_pipeline(self):
         try:
             # Data Ingestion
@@ -69,10 +83,12 @@ class Pipeline:
             data_transformation_artifact = self.start_data_transformation(
                 data_transformation_config= data_transformation_config,
                 data_ingestion_artifact=data_ingestion_artifact,
-                data_validation_artifact=data_validation_artifact
-            )
+                data_validation_artifact=data_validation_artifact)
+
+            model_trainer_artifact = self.start_model_training(data_transformation_artifact=data_transformation_artifact)
+
             logging.info(f"data ingestion artifact : {data_ingestion_artifact} and data validation artifact is :{data_validation_artifact} and data transformation artifact is ;[{data_transformation_artifact}]")
-            return data_ingestion_artifact,data_validation_artifact,data_transformation_artifact
+            return data_ingestion_artifact,data_validation_artifact,data_transformation_artifact,model_trainer_artifact
 
         except Exception as e:
             raise ExceptionHendler(e,sys) from e

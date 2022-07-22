@@ -6,6 +6,7 @@ CONFIG_DIR_NAME = "config"
 CONFIG_FILE_NAME = "config.yaml"
 CONFIG_FILE_PATH = os.path.join(ROOT_DIR,CONFIG_DIR_NAME,CONFIG_FILE_NAME)
 CURRENT_TIME_STAMP = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+MODEL_FILE_PATH = "model.yaml"
 
 ## Constant for Training Pipeline
 TRAINING_PIPELINE_CONFIG_KEY = "training_pipeline_config"
@@ -53,3 +54,10 @@ NUMERICAL_COLUMN_KEY = "numerical_columns"
 CATEGORICAL_COLUMN_KEY = "categorical_columns"
 TARGET_COLUMN_KEY = "target_column"
 DATASET_SCHEMA_COLUMNS_KEY = "columns"
+
+## Model Training Constants :- 
+MODEL_TRAINER_CONFIG_ARIFACT_DIR = "model_trainer"
+MODEL_TRAINER_CONFIG_KEY = "model_trainer_config"
+MODEL_TRAINER_TRAINED_MODEL_DIR_KEY = "trained_model_dir"
+MODEL_TRAINER_MODEL_FILE_NAME_KEY = "model_file_name"
+MODEL_TRAINER_BASE_ACCURACY_KEY = 0.6

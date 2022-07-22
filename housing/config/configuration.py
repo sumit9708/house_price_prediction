@@ -166,7 +166,42 @@ class Configuration:
             raise ExceptionHendler(e,sys) from e
 
     def get_model_trainer_config(self)->ModelTrainerConfig:
-        pass
+        try:
+
+            logging.info("-----------model training log started-----------------")
+            self.model_trainer_config = self.config_info[MODEL_TRAINER_CONFIG_KEY]
+
+            time_stamp = self.time_stamp
+
+            artifact_dir = self.training_pipeline_config.artifact_dir
+            model_trainer_artifact_dir = os.path.join(artifact_dir,
+             MODEL_TRAINER_CONFIG_ARIFACT_DIR,
+             time_stamp
+            )
+
+            logging.info(f"model_training_artifact_dir is : [{model_trainer_artifact_dir}]")
+
+            trained_model_file_name = self.model_trainer_config[MODEL_TRAINER_MODEL_FILE_NAME_KEY]
+
+            trained_model_dir = os.path.join(model_trainer_artifact_dir,
+                self.model_trainer_config[MODEL_TRAINER_TRAINED_MODEL_DIR_KEY],
+                trained_model_file_name
+            )
+
+            trained_model_file_path = os.path.join(model_trainer_artifact_dir,trained_model_dir)
+
+            model_trainer_config = ModelTrainerConfig(
+                trained_model_file_path, 
+                base_accuracy = 0.6)
+
+            logging.info("--------------Model Trainer Config Log Completed---------------")
+
+            logging.info(f"model_trainer_config is :[{model_trainer_config}]")
+
+            return model_trainer_config
+
+        except Exception as e:
+            raise ExceptionHendler
 
     def get_model_evaluation_config(self)->ModelEvaluationConfig:
         pass
