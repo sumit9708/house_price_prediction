@@ -1,3 +1,4 @@
+from distutils.command.config import config
 import os,sys
 from housing.constant import *
 from housing.logger import logging
@@ -204,10 +205,50 @@ class Configuration:
             raise ExceptionHendler
 
     def get_model_evaluation_config(self)->ModelEvaluationConfig:
-        pass
+        try:
+            logging.info("-------------------Model Evaluation Log Started------------------------")
+            artifact_dir = self.training_pipeline_config.artifact_dir
+            model_evaluation_config = self.config_info[MODEL_EVALUATION_CONFIG_KEY]
+
+            model_evaluation_artifact_dir = os.path.join(artifact_dir,
+            MODEL_EVALUATION_ARTIFACT_DIR_NAME,self.time_stamp
+            ) 
+
+            #os.makedirs(model_evaluation_artifact_dir,exist_ok=True)
+
+            logging.info(f"model_evaluation_artifact_dir_path_ is : [{model_evaluation_artifact_dir}]")
+
+            model_evaluation_file_path = os.path.join(model_evaluation_artifact_dir,
+            model_evaluation_config[MODEL_EVALUATION_FILE_NAME_KEY])
+
+            logging.info(f"model_evaluation_file_path is : [{model_evaluation_file_path}]")
+
+            model_evaluation_config = ModelEvaluationConfig(
+                model_evaluation_file_path, 
+                time_stamp = self.time_stamp
+                )
+
+            logging.info(f"model_evaluation_config is : [{model_evaluation_config}]")
+
+            logging.info("---------------model evaluation config log completed---------------------")
+
+            return model_evaluation_config
+        except Exception as e:
+            raise ExceptionHendler(e,sys) from e
 
     def get_model_pusher_config(self)->ModelPusherConfig:
-        pass
+        try:
+            time_stamp = f"{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            model_pusher_config_info = self.config_info[MODEL_PUSHER_CONFIG_KEY]
+            export_dir_path = os.path.join(ROOT_DIR, model_pusher_config_info[MODEL_PUSHER_MODEL_EXPORT_DIR_KEY],
+                                           time_stamp)
+
+            model_pusher_config = ModelPusherConfig(export_dir_path=export_dir_path)
+            logging.info(f"Model pusher config {model_pusher_config}")
+            return model_pusher_config
+
+        except Exception as e:
+            raise ExceptionHendler(e,sys) from e
 
     def get_training_pipeline_config(self)->TrainingPipelineConfig:
         try:

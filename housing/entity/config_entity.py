@@ -17,7 +17,7 @@ DataTransformationConfig = namedtuple("DataTransformationConfig",["add_bedroom_p
 ModelTrainerConfig = namedtuple("ModelTrainerConfig",["trained_model_file_path","base_accuracy"])
 
 ## Model Evaluation Configuration :-
-ModelEvaluationConfig = namedtuple("ModelEvaluationConfig",["model_evaluation_file_name","time_stamp"])
+ModelEvaluationConfig = namedtuple("ModelEvaluationConfig",["model_evaluation_file_path","time_stamp"])
 
 ## Model Pusher Configuration :-
 ModelPusherConfig = namedtuple("ModelPusherConfig",["model_export_dir"])

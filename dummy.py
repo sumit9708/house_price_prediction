@@ -13,8 +13,8 @@ def main():
     try:
         pipeline = Pipeline()
         pipeline.run_pipeline()
-        #model_trainer = Configuration().get_model_trainer_config()
-        #print(model_trainer)
+        #model_evaluation = Configuration().get_model_evaluation_config()
+        #print(model_evaluation)
         logging.info("demo class has been created and logging and exception test started")
     except Exception as e:
         housing_exception = ExceptionHendler(e,sys)

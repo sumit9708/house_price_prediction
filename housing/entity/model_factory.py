@@ -243,10 +243,13 @@ class ModelFactory:
         except Exception as e:
             raise ExceptionHendler(e, sys) from e
 
-    def get_initialized_model_list(self) -> List[InitializedModelDetail]:
+    def get_initialized_model_list(self) -> List[InitializedModelDetail]:  ## Most importent function in for training
         """
         This function will return a list of model details.
         return List[ModelDetail]
+
+        in this function we are creating object for different supervised and unsupervised ml model from sklearn
+        and fitting the models.
         """
         try:
             initialized_model_list = []

@@ -7,11 +7,13 @@ import os,sys
 from housing.logger import logging
 from housing.component.data_ingestion import DataIngestion
 
-from housing.entity.artifact_entity import DataIngestionArtifact, DataTransformationArtifact, DataValidationArtifact, ModelTrainerArtifact
-from housing.entity.config_entity import DataIngestionConfig, DataTransformationConfig,DataValidationConfig, ModelTrainerConfig
+from housing.entity.artifact_entity import DataIngestionArtifact, DataTransformationArtifact, DataValidationArtifact, ModelEvaluationArtifact, ModelPusherArtifact, ModelTrainerArtifact
+from housing.entity.config_entity import DataIngestionConfig, DataTransformationConfig,DataValidationConfig, ModelEvaluationConfig, ModelTrainerConfig
 from housing.component.data_validation import DataValidation
 from housing.component.data_transformation import DataTransformation
 from housing.component.model_trainer import ModelTraining
+from housing.component.model_evaluation import ModelEvaluation
+from housing.component.model_pusher import ModelPusher
 
 class Pipeline:
     def __init__(self,config: Configuration = Configuration())->None:
@@ -72,6 +74,30 @@ class Pipeline:
         except Exception as e:
             raise ExceptionHendler(e,sys) from e
 
+    def start_model_evaluation(self,data_ingestion_artifact:DataIngestionArtifact,
+                               data_validation_artifact:DataValidationArtifact,
+                               model_trainer_artifact:ModelTrainerArtifact) -> ModelEvaluationArtifact:
+        try:
+            model_eval = ModelEvaluation(
+                model_evaluation_config=self.config.get_model_evaluation_config(),
+                data_ingestion_artifact=data_ingestion_artifact,
+                data_validation_artifct=data_validation_artifact,
+                model_training_artifact=model_trainer_artifact
+                )
+            return model_eval.initiate_model_evaluation()
+        except Exception as e:
+            raise ExceptionHendler(e,sys) from e
+
+    def start_model_pushing(self,model_eval_artifact: ModelEvaluationArtifact)-> ModelPusherArtifact:
+        try:
+            model_pusher = ModelPusher(
+                model_pusher_config=self.config.get_model_pusher_config(),
+                model_evaluation_artifact=model_eval_artifact
+            )
+            return model_pusher.initiate_model_pusher()
+        except Exception as e:
+            raise ExceptionHendler(e,sys) from e
+
     def run_pipeline(self):
         try:
             # Data Ingestion
@@ -87,8 +113,18 @@ class Pipeline:
 
             model_trainer_artifact = self.start_model_training(data_transformation_artifact=data_transformation_artifact)
 
-            logging.info(f"data ingestion artifact : {data_ingestion_artifact} and data validation artifact is :{data_validation_artifact} and data transformation artifact is ;[{data_transformation_artifact}]")
-            return data_ingestion_artifact,data_validation_artifact,data_transformation_artifact,model_trainer_artifact
+            model_evaluation_artifact = self.start_model_evaluation(data_ingestion_artifact=data_ingestion_artifact,
+                                                                    data_validation_artifact=data_validation_artifact,
+                                                                    model_trainer_artifact=model_trainer_artifact)
+            
+            model_pusher_artifact = ModelPusherArtifact(
+                is_model_pusher, 
+                export_model_file_path
+                )
+
+            logging.info(f"data ingestion artifact : {data_ingestion_artifact} and data validation artifact is :{data_validation_artifact} and data transformation artifact is ;[{data_transformation_artifact}], model trainer artifact is [{model_trainer_artifact},model evaluation artifact is :[{model_evaluation_artifact}]]")
+
+            return data_ingestion_artifact,data_validation_artifact,data_transformation_artifact,model_trainer_artifact,model_evaluation_artifact
 
         except Exception as e:
             raise ExceptionHendler(e,sys) from e
